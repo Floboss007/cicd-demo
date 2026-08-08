@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+              http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+    <!--
+      Nexus default admin credentials on first run are admin / <random password
+      found in /nexus-data/admin.password inside the container>.
+      For the class, create a simple 'deployer' user in Nexus with
+      "nx-repository-view-*-*-*" privileges, or just use admin/admin123
+      after resetting the password on first login. Match whichever you choose here.
+    -->
+    <servers>
+        <server>
+            <id>nexus-snapshots</id>
+            <username>deployer</username>
+            <password>deployer123</password>
+        </server>
+        <server>
+            <id>nexus-releases</id>
+            <username>deployer</username>
+            <password>deployer123</password>
+        </server>
+    </servers>
+
+</settings>

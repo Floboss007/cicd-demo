@@ -1,0 +1,84 @@
+pipeline {
+    agent any
+
+    environment {
+        TOMCAT_URL  = 'http://tomcat:8080/manager/text'
+        TOMCAT_USER = 'deployer'
+        TOMCAT_PASS = 'deployer123'
+        WAR_NAME    = 'ci-demo-app'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo 'Pulling latest source code from Git...'
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('app') {
+                    echo 'Compiling the application...'
+                    sh 'mvn -B clean compile'
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                dir('app') {
+                    echo 'Running unit tests...'
+                    sh 'mvn -B test'
+                }
+            }
+            post {
+                always {
+                    junit 'app/target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage('Package') {
+            steps {
+                dir('app') {
+                    echo 'Packaging the WAR file...'
+                    sh 'mvn -B package -DskipTests'
+                    archiveArtifacts artifacts: 'target/*.war', fingerprint: true
+                }
+            }
+        }
+
+        stage('Publish to Nexus') {
+            steps {
+                dir('app') {
+                    echo 'Publishing artifact to Nexus...'
+                    sh 'mvn -B deploy -DskipTests'
+                }
+            }
+        }
+
+        stage('Deploy to Tomcat') {
+            steps {
+                dir('app') {
+                    echo 'Deploying WAR to Tomcat via the manager API...'
+                    sh '''
+                        curl -v -u ${TOMCAT_USER}:${TOMCAT_PASS} \
+                          "${TOMCAT_URL}/deploy?path=/${WAR_NAME}&update=true" \
+                          --upload-file target/${WAR_NAME}.war
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Deployed! Visit http://localhost:8082/${WAR_NAME}/hello to see it live."
+        }
+        failure {
+            echo 'Pipeline failed — check the stage logs above to see where.'
+        }
+    }
+}

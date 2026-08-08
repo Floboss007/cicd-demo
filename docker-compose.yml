@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
+    container_name: ci-jenkins
+    ports:
+      - "8080:8080"   # Jenkins UI
+      - "50000:50000" # Jenkins agents (not needed for this class, harmless to expose)
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./settings.xml:/var/jenkins_home/.m2/settings.xml
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    networks:
+      - ci-net
+
+  nexus:
+    image: sonatype/nexus3:latest
+    container_name: ci-nexus
+    ports:
+      - "8081:8081"   # Nexus UI / API
+    volumes:
+      - nexus_data:/nexus-data
+    networks:
+      - ci-net
+
+  tomcat:
+    image: tomcat:9.0-jdk17
+    container_name: ci-tomcat
+    ports:
+      - "8082:8080"   # Tomcat, mapped to 8082 on host to avoid clashing with Jenkins
+    volumes:
+      - ./tomcat-config/tomcat-users.xml:/usr/local/tomcat/conf/tomcat-users.xml
+      - ./tomcat-config/context.xml:/usr/local/tomcat/webapps/manager/META-INF/context.xml
+    command: ["sh", "-c", "cp -Rn /usr/local/tomcat/webapps.dist/* /usr/local/tomcat/webapps/ && catalina.sh run"]
+    networks:
+      - ci-net
+
+volumes:
+  jenkins_home:
+  nexus_data:
+
+networks:
+  ci-net:
+    driver: bridge
