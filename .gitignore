@@ -1,8 +1,7 @@
 app/target/
-*.tfvars
-*.lock.hcl
-*.tfstate
+
+terraform.tfvars
 .terraform/
-.terraform/*
+*.tfstate
 *.tfstate.*
 crash.log
