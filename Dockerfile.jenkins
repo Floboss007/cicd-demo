@@ -16,7 +16,8 @@ RUN jenkins-plugin-cli --plugins \
     git \
     workflow-aggregator \
     pipeline-stage-view \
-    credentials-binding
+    credentials-binding \
+    junit 
     
 RUN mkdir -p /var/jenkins_home/.m2/repository && \
     chown -R jenkins:jenkins /var/jenkins_home/.m2

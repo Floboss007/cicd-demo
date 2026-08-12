@@ -1,0 +1,11 @@
+project_id = "your-gcp-project-id-here"
+
+admin_ip = "your public address"
+
+# Everything below already has sensible defaults in variables.tf —
+# only uncomment and change these if you want something different.
+
+# region       = "us-central1"
+# zone         = "us-central1-a"
+# machine_type = "e2-standard-2"
+# repo_url     = "link-2-repo"
