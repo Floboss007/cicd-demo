@@ -3,5 +3,6 @@ app/target/
 *.lock.hcl
 *.tfstate
 .terraform/
+.terraform/*
 *.tfstate.*
 crash.log
